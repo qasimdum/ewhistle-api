@@ -186,21 +186,31 @@ router.get('/allegation/tracking/:id', async (req, res) => {
   if (!(req.params.id)) {
     res.status(400).send({status: false, msg: 'All fields are required'})
   }
-
-  Allegation.getSingleAllegationByTrackingId(params.id)
-    .then(response => {
-      if(response[0]) {
-        if(response[0].fileUrl) {
-          response[0].fileUrl = config.FILE_DIR + response[0].fileUrl;
+  try {
+    Allegation.getSingleAllegationByTrackingId(params.id)
+      .then(response => {
+        if(response[0]) {
+          if(response[0].fileUrl) {
+            response[0].fileUrl = config.FILE_DIR + response[0].fileUrl;
+          }
+          if(response[0].allegationDate) {
+            const d = response[0].allegationDate;
+            const month = d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1;
+            const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+            response[0].allegationDate = `${d.getFullYear()}-${month}-${day}`
+          }
+          res.status(201).json({status: true, data: response[0]});
+        }else{
+          res.status(400).send({status: false, msg: 'Allegation not found'})
         }
-        res.status(201).json({status: true, data: response[0]});
-      }else{
-        res.status(400).send({status: false, msg: 'Allegation not found'})
-      }
-    })
-    .catch(e => {
-      res.status(400).send({status: false, msg: e.message})
-    })
+      })
+      .catch(e => {
+        res.status(400).send({status: false, msg: e.message})
+      })
+  }catch (e) {
+    res.status(400).send({status: false, msg: e.message})
+  }
+
 })
 router.post('/allegation/history/:allegationId', async (req, res) => {
   let params = {...req.params, ...req.body};
