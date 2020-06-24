@@ -116,7 +116,7 @@ const getSingleAllegation = async (allegationId) => {
 const getAllegationHistory = async (trackingId) => {
 	return new Promise((resolve, reject) => {
 		connection.query(`
-    select h.*, a.id, f.title as fileName, f.path as fileUrl, u.id as userId, u.name as userName from allegations a 
+    select h.*, h.id, f.title as fileName, f.path as fileUrl, u.id as userId, u.name as userName from allegations a 
       left join history h on a.id=h.allegationId
       left join users u on h.userId=u.id
       left join files f on h.id=f.historyID where a.trackingId='${trackingId}'`, async (err, row, fields) => {
@@ -130,7 +130,7 @@ const getAllegationHistory = async (trackingId) => {
 const getAllegationHistoryAdmin = async (allegationId) => {
 	return new Promise((resolve, reject) => {
 		connection.query(`
-    select h.*, a.id, f.title as fileName, f.path as fileUrl, u.id as userId, u.name as userName from allegations a 
+    select h.*, h.id, f.title as fileName, f.path as fileUrl, u.id as userId, u.name as userName from allegations a 
       left join history h on a.id=h.allegationId
       left join users u on h.userId=u.id
       left join files f on h.id=f.historyID where a.id='${allegationId}'`, async (err, row, fields) => {
