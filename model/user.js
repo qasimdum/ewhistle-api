@@ -62,7 +62,7 @@ const assignUser = async (userId, allegationId) => {
     connection.query(`
     update allegations set assignee=?, status=?
      WHERE id=?`, [
-      userId, allegationStatus.IN_REVIEW, allegationId
+      userId, allegationStatus.allegationStatusEnum.IN_REVIEW, allegationId
     ], (err, row, fields) => {
       if (err)
         return reject(err);

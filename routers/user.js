@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 const mail = require('../utils/mail');
 const roles = require('../enums/roles');
 const validator = require('validator');
-const config = require('../config');
+const emailTemplates = require('../utils/templates');
 const router = new express.Router();
 
 router.post('/oauth/token', async (req, res) => {
@@ -178,7 +178,7 @@ router.post('/user/assign', auth, async (req, res) => {
         if(req.user.role === roles.ADMINISTRATOR) {
           User.getUserById(params.userId)
             .then(response => {
-              mail.sendMail(response[0].email, 'New Allegation was assigned to you', `<p>Allegation Link is ${config.FRONTEND_URL}allegations</p>`);
+              mail.sendMail(response[0].email, 'New Allegation was assigned to you',  emailTemplates.newAllegationAssigned(response[0].name, params.allegationId));
             })
             .catch(e => e);
         }
@@ -186,7 +186,7 @@ router.post('/user/assign', auth, async (req, res) => {
           User.getUsersByRole(roles.ADMINISTRATOR)
             .then(response => {
               response.map(user => {
-                mail.sendMail(user.email, 'TEST', '<strong>SENT</strong>');
+                mail.sendMail(user.email, 'New Allegation was assigned to you', emailTemplates.newAllegationAssigned(user.name, params.allegationId));
               })
             })
             .catch(e => e);
