@@ -183,6 +183,21 @@ router.get('/allegation/history/admin/:id', async (req, res) => {
       res.status(400).send({status: false, msg: e.message})
     })
 })
+router.get('/allegation/note/:id', async (req, res) => {
+  let params = {...req.params};
+
+  if (!(req.params.id)) {
+    res.status(400).send({status: false, msg: 'All fields are required'})
+  }
+
+  Allegation.getAllegationNote(params.id)
+    .then(response => {
+      res.status(201).json({status: true, data: response});
+    })
+    .catch(e => {
+      res.status(400).send({status: false, msg: e.message})
+    })
+})
 router.get('/allegation/tracking/:id', async (req, res) => {
   let params = {...req.params};
 
@@ -242,6 +257,25 @@ router.post('/allegation/history/admin/:allegationId', auth, async (req, res) =>
   }
 
   Allegation.insertAllegationHistory(params.text, params.allegationId, req.user.id)
+    .then(response => {
+      if (response.affectedRows > 0) {
+        res.status(201).json({status: true, insertId: response.insertId});
+      } else {
+        res.status(400).send({status: false, msg: 'Allegation not found'})
+      }
+    })
+    .catch(e => {
+      res.status(400).send({status: false, msg: e.message})
+    })
+})
+router.post('/allegation/note/:allegationId', auth, async (req, res) => {
+  let params = {...req.params, ...req.body};
+  if (params.allegationId === 'null' || !(params.allegationId && params.text)) {
+    res.status(400).send({status: false, msg: 'All fields are required'});
+    return;
+  }
+
+  Allegation.insertAllegationNote(params.text, params.allegationId, req.user.id)
     .then(response => {
       if (response.affectedRows > 0) {
         res.status(201).json({status: true, insertId: response.insertId});

@@ -141,10 +141,37 @@ const getAllegationHistoryAdmin = async (allegationId) => {
 	})
 }
 
+const getAllegationNote = async (allegationId) => {
+	return new Promise((resolve, reject) => {
+		connection.query(`
+    select n.*, n.id, u.id as userId, u.name as userName from allegations a 
+      left join notes n on a.id=n.allegationId
+      left join users u on n.userId=u.id where a.id='${allegationId}'`, async (err, row, fields) => {
+			if (err)
+				return reject(err);
+			resolve(row);
+		});
+	})
+}
+
 const insertAllegationHistory = async (text, allegationId, userId = null) => {
 	return new Promise((resolve, reject) => {
 		connection.query(`
     insert into history (text, allegationId, userId, createdAt)
+      VALUES
+        ('${text}', ${allegationId}, ${userId}, NOW())
+    `, async (err, row, fields) => {
+			if (err)
+				return reject(err);
+			resolve(row);
+		});
+	})
+}
+
+const insertAllegationNote = async (text, allegationId, userId) => {
+	return new Promise((resolve, reject) => {
+		connection.query(`
+    insert into notes (text, allegationId, userId, createdAt)
       VALUES
         ('${text}', ${allegationId}, ${userId}, NOW())
     `, async (err, row, fields) => {
@@ -211,5 +238,7 @@ module.exports = {
   getAllegationHistory,
   insertAllegationHistory,
 	uploadHistoryFile,
-	getAllegationHistoryAdmin
+	getAllegationHistoryAdmin,
+	insertAllegationNote,
+	getAllegationNote
 }
