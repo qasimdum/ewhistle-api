@@ -249,6 +249,37 @@ router.post('/allegation/history/:allegationId', async (req, res) => {
       res.status(400).send({status: false, msg: e.message})
     })
 })
+router.post('/allegation/history/tracking/:trackingId', async (req, res) => {
+  let params = {...req.params, ...req.body};
+
+  if (!(params.trackingId && params.text)) {
+    res.status(400).send({status: false, msg: 'All fields are required'})
+  }
+
+  Allegation.getSingleAllegationByTrackingId(params.trackingId)
+    .then(allegation => {
+
+      if(allegation && allegation[0]) {
+        const allegationId = allegation[0].id;
+        Allegation.insertAllegationHistory(params.text, allegationId)
+          .then(response => {
+            if (response.affectedRows > 0) {
+              res.status(201).json({status: true, insertId: response.insertId});
+            } else {
+              res.status(400).send({status: false, msg: 'Allegation not found'})
+            }
+          })
+          .catch(e => {
+            res.status(400).send({status: false, msg: e.message})
+          })
+      }else{
+        res.status(400).send({status: false, msg: 'Allegation not found'})
+      }
+    })
+    .catch(e => {
+      res.status(400).send({status: false, msg: e.message})
+    })
+})
 router.post('/allegation/history/admin/:allegationId', auth, async (req, res) => {
   let params = {...req.params, ...req.body};
 
